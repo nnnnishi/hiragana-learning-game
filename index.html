@@ -474,6 +474,199 @@ body {
 }
 
 /* ===================== */
+/* 学習記録画面           */
+/* ===================== */
+.history-btn {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  width: 52px;
+  height: 52px;
+  font-size: 28px;
+  background: #FFF;
+  border: 3px solid #DDD;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+#history-screen {
+  justify-content: flex-start;
+  padding-top: 30px;
+  padding-bottom: 40px;
+  gap: 16px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.history-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #555;
+}
+
+.history-content {
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.history-summary {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: #555;
+  background: #FFF;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.history-summary .big-number {
+  font-size: 36px;
+  color: #FF6B9D;
+  font-weight: 900;
+}
+
+.history-section-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #888;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+/* 日別棒グラフ */
+.daily-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #FFF;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.daily-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #666;
+}
+
+.daily-label {
+  width: 50px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.daily-bar-bg {
+  flex: 1;
+  height: 22px;
+  background: #F0F0F0;
+  border-radius: 11px;
+  overflow: hidden;
+}
+
+.daily-bar {
+  height: 100%;
+  border-radius: 11px;
+  background: #6BCB77;
+  transition: width 0.4s ease;
+}
+
+.daily-pct {
+  width: 50px;
+  text-align: left;
+  flex-shrink: 0;
+  font-size: 14px;
+}
+
+.daily-nodata {
+  color: #CCC;
+  font-size: 13px;
+}
+
+/* 文字別正答率 */
+.char-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #FFF;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.char-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.char-row-label {
+  width: 40px;
+  color: #999;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.char-cell {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 20px;
+}
+
+.char-cell .char-name {
+  font-size: 18px;
+}
+
+.char-cell .char-icon {
+  font-size: 14px;
+}
+
+.char-cell.rate-high .char-icon { color: #4CAF50; }
+.char-cell.rate-mid .char-icon { color: #FF9800; }
+.char-cell.rate-low .char-icon { color: #F44336; }
+.char-cell.rate-none .char-icon { color: #DDD; }
+
+/* ボタン */
+.history-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.history-action-btn {
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: 700;
+  border: 2px solid #CCC;
+  border-radius: 12px;
+  background: #FFF;
+  cursor: pointer;
+}
+
+.history-action-btn:active {
+  transform: translateY(2px);
+}
+
+.history-action-btn.reset-btn {
+  border-color: #FFCDD2;
+  color: #C62828;
+}
+
+/* ===================== */
 /* 紙吹雪アニメーション   */
 /* ===================== */
 .confetti-container {
@@ -527,6 +720,7 @@ body {
     </button>
   </div>
   <button class="settings-btn" onclick="showScreen('settings-screen')">⚙️</button>
+  <button class="history-btn" onclick="showHistoryScreen()">📊</button>
 </div>
 
 <!-- 設定画面 -->
@@ -553,6 +747,17 @@ body {
   <div class="choices-area" id="choices-area"></div>
   <div class="feedback-text" id="feedback"></div>
   <button class="home-btn" onclick="goHome()">🏠 もどる</button>
+</div>
+
+<!-- 学習記録画面 -->
+<div id="history-screen" class="screen">
+  <div class="history-title">📊 がくしゅう きろく</div>
+  <div class="history-content" id="history-content"></div>
+  <div class="history-actions">
+    <button class="history-action-btn export-btn" onclick="exportHistory()">📥 データを ほぞん</button>
+    <button class="history-action-btn reset-btn" onclick="resetHistory()">🗑 リセット</button>
+  </div>
+  <button class="back-btn" onclick="goHome()">🏠 もどる</button>
 </div>
 
 <!-- マイルストーン画面（5問正解） -->
@@ -611,9 +816,84 @@ let currentAnswer = '';
 let isAnswered = false;
 let selectedRows = [...ROW_NAMES];
 let correctCount = 0;
+let questionRecorded = false; // 1問につき不正解記録は1回のみ
 
 // wavファイル存在キャッシュ（404チェック結果を記憶）
 const audioAvailableCache = {};
+
+// =====================
+// 学習記録
+// =====================
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem('hiragana-history');
+    if (!raw) return [];
+    const data = JSON.parse(raw);
+    if (!Array.isArray(data)) return [];
+    // 90日超のデータを削除
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 90);
+    const cutoffStr = cutoff.toISOString().slice(0, 10);
+    const filtered = data.filter(function(r) { return r.date >= cutoffStr; });
+    if (filtered.length !== data.length) {
+      localStorage.setItem('hiragana-history', JSON.stringify(filtered));
+    }
+    return filtered;
+  } catch (e) {
+    return [];
+  }
+}
+
+function recordAnswer(char, level, correct) {
+  try {
+    const history = loadHistory();
+    history.push({
+      date: new Date().toISOString().slice(0, 10),
+      char: char,
+      level: level,
+      correct: correct
+    });
+    localStorage.setItem('hiragana-history', JSON.stringify(history));
+  } catch (e) { /* localStorage無効環境 */ }
+}
+
+function getStats() {
+  const history = loadHistory();
+  var total = history.length;
+  var totalCorrect = history.filter(function(r) { return r.correct; }).length;
+
+  // 日別集計（直近7日）
+  var dailyMap = {};
+  var today = new Date();
+  for (var i = 6; i >= 0; i--) {
+    var d = new Date(today);
+    d.setDate(d.getDate() - i);
+    var key = d.toISOString().slice(0, 10);
+    dailyMap[key] = { total: 0, correct: 0 };
+  }
+  history.forEach(function(r) {
+    if (dailyMap[r.date]) {
+      dailyMap[r.date].total++;
+      if (r.correct) dailyMap[r.date].correct++;
+    }
+  });
+
+  // 文字別集計
+  var charMap = {};
+  history.forEach(function(r) {
+    if (!charMap[r.char]) charMap[r.char] = { total: 0, correct: 0 };
+    charMap[r.char].total++;
+    if (r.correct) charMap[r.char].correct++;
+  });
+
+  return {
+    total: total,
+    totalCorrect: totalCorrect,
+    totalRate: total > 0 ? Math.round(totalCorrect / total * 100) : 0,
+    daily: dailyMap,
+    charStats: charMap
+  };
+}
 
 // =====================
 // 画面切り替え
@@ -735,6 +1015,7 @@ function renderProgress() {
 
 function nextQuestion() {
   isAnswered = false;
+  questionRecorded = false;
   document.getElementById('feedback').textContent = '';
   document.getElementById('feedback').className = 'feedback-text';
 
@@ -805,6 +1086,7 @@ function handleChoice(btn, chosen) {
     isAnswered = true;
     btn.classList.add('correct');
     correctCount++;
+    recordAnswer(currentAnswer, currentLevel, true);
 
     // バイブレーション（対応端末のみ）
     if (navigator.vibrate) {
@@ -841,7 +1123,11 @@ function handleChoice(btn, chosen) {
       setTimeout(nextQuestion, 1800);
     }
   } else {
-    // 不正解（否定しない）
+    // 不正解（否定しない）— 初回タップのみ記録
+    if (!questionRecorded) {
+      questionRecorded = true;
+      recordAnswer(currentAnswer, currentLevel, false);
+    }
     btn.classList.add('wrong');
     const feedback = document.getElementById('feedback');
     feedback.textContent = 'もういちど やってみよう！';
@@ -941,6 +1227,103 @@ function showConfetti() {
   setTimeout(function() {
     container.innerHTML = '';
   }, 3500);
+}
+
+// =====================
+// 学習記録画面
+// =====================
+function showHistoryScreen() {
+  showScreen('history-screen');
+  renderHistory();
+}
+
+function renderHistory() {
+  var content = document.getElementById('history-content');
+  var stats = getStats();
+
+  var html = '';
+
+  // 合計サマリー
+  html += '<div class="history-summary">';
+  if (stats.total === 0) {
+    html += 'まだ きろくが ないよ<br>あそんで みよう！';
+  } else {
+    html += 'ぜんぶ: <span class="big-number">' + stats.total + '</span>もん　';
+    html += 'せいかいりつ: <span class="big-number">' + stats.totalRate + '%</span>';
+  }
+  html += '</div>';
+
+  if (stats.total > 0) {
+    // 直近7日間
+    html += '<div class="history-section-title">── さいきん 7にち ──</div>';
+    html += '<div class="daily-chart">';
+    var dailyKeys = Object.keys(stats.daily);
+    dailyKeys.forEach(function(dateKey) {
+      var d = stats.daily[dateKey];
+      var label = dateKey.slice(5).replace('-', '/');
+      var pct = d.total > 0 ? Math.round(d.correct / d.total * 100) : 0;
+      html += '<div class="daily-row">';
+      html += '<span class="daily-label">' + label + '</span>';
+      if (d.total > 0) {
+        html += '<div class="daily-bar-bg"><div class="daily-bar" style="width:' + pct + '%"></div></div>';
+        html += '<span class="daily-pct">' + pct + '%</span>';
+      } else {
+        html += '<div class="daily-bar-bg"></div>';
+        html += '<span class="daily-pct daily-nodata">—</span>';
+      }
+      html += '</div>';
+    });
+    html += '</div>';
+
+    // 文字別正答率
+    html += '<div class="history-section-title">── もじべつ ──</div>';
+    html += '<div class="char-stats">';
+    ROW_NAMES.forEach(function(row) {
+      html += '<div class="char-row">';
+      html += '<span class="char-row-label">' + row + '</span>';
+      HIRAGANA[row].forEach(function(ch) {
+        var cs = stats.charStats[ch];
+        var rateClass = 'rate-none';
+        var icon = '·';
+        if (cs && cs.total > 0) {
+          var r = Math.round(cs.correct / cs.total * 100);
+          if (r >= 80) { rateClass = 'rate-high'; icon = '◎'; }
+          else if (r >= 60) { rateClass = 'rate-mid'; icon = '○'; }
+          else { rateClass = 'rate-low'; icon = '△'; }
+        }
+        html += '<span class="char-cell ' + rateClass + '">';
+        html += '<span class="char-name">' + ch + '</span>';
+        html += '<span class="char-icon">' + icon + '</span>';
+        html += '</span>';
+      });
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  content.innerHTML = html;
+}
+
+function exportHistory() {
+  var history = loadHistory();
+  var blob = new Blob([JSON.stringify(history, null, 2)], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'hiragana-history-' + new Date().toISOString().slice(0, 10) + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function resetHistory() {
+  if (confirm('きろくを ぜんぶ けしますか？')) {
+    try {
+      localStorage.removeItem('hiragana-history');
+    } catch (e) { /* ignore */ }
+    renderHistory();
+  }
 }
 
 // =====================
