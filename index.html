@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>ひらがな あそび</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+body {
+  font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', system-ui, sans-serif;
+  background: #FFF8E7;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.screen.active {
+  display: flex;
+}
+
+/* ===================== */
+/* スタート画面           */
+/* ===================== */
+#start-screen {
+  gap: 30px;
+}
+
+.game-title {
+  font-size: 48px;
+  font-weight: 900;
+  color: #FF6B9D;
+  text-shadow: 3px 3px 0 #FFB8D0;
+  letter-spacing: 0.1em;
+}
+
+.level-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.level-btn {
+  padding: 24px 40px;
+  font-size: 28px;
+  font-weight: 800;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 6px 0 rgba(0,0,0,0.15);
+  letter-spacing: 0.05em;
+}
+
+.level-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 3px 0 rgba(0,0,0,0.15);
+}
+
+.level-btn.lv1 {
+  background: #FFD93D;
+  color: #8B6914;
+}
+
+.level-btn.lv2 {
+  background: #6BCB77;
+  color: #2D6A34;
+}
+
+.level-btn.lv3 {
+  background: #4D96FF;
+  color: #1A3A6B;
+}
+
+.level-desc {
+  font-size: 16px;
+  font-weight: 500;
+  opacity: 0.8;
+  margin-top: 4px;
+}
+
+.settings-btn {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 52px;
+  height: 52px;
+  font-size: 28px;
+  background: #FFF;
+  border: 3px solid #DDD;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+/* ===================== */
+/* 設定画面               */
+/* ===================== */
+#settings-screen {
+  justify-content: flex-start;
+  padding-top: 30px;
+  gap: 16px;
+}
+
+.settings-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #555;
+}
+
+.settings-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.settings-actions button {
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 700;
+  border: 2px solid #CCC;
+  border-radius: 12px;
+  background: #FFF;
+  cursor: pointer;
+}
+
+.row-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width: 100%;
+  max-width: 450px;
+}
+
+.row-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #FFF;
+  border: 2px solid #E0E0E0;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: 700;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.row-checkbox.checked {
+  background: #E8F5E9;
+  border-color: #66BB6A;
+}
+
+.row-checkbox .checkmark {
+  width: 28px;
+  height: 28px;
+  border: 3px solid #CCC;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  background: #FFF;
+  flex-shrink: 0;
+}
+
+.row-checkbox.checked .checkmark {
+  background: #66BB6A;
+  border-color: #66BB6A;
+  color: #FFF;
+}
+
+.back-btn {
+  padding: 16px 48px;
+  font-size: 22px;
+  font-weight: 800;
+  background: #FF6B9D;
+  color: #FFF;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+  box-shadow: 0 4px 0 #D4507A;
+}
+
+.back-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #D4507A;
+}
+
+/* ===================== */
+/* ゲーム画面             */
+/* ===================== */
+#game-screen {
+  justify-content: space-between;
+  padding: 20px 20px 30px;
+  gap: 10px;
+}
+
+.question-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  width: 100%;
+}
+
+.question-text {
+  font-size: 42px;
+  font-weight: 900;
+  color: #333;
+}
+
+.question-text .highlight {
+  color: #FF6B9D;
+  font-size: 52px;
+}
+
+.sound-btn {
+  width: 64px;
+  height: 64px;
+  font-size: 36px;
+  background: #FFF3CD;
+  border: 3px solid #FFD93D;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sound-btn:active {
+  transform: scale(0.93);
+}
+
+.hint-area {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80px;
+}
+
+/* Level 1: 背景ヒント */
+.hint-bg {
+  font-size: 160px;
+  font-weight: 900;
+  color: rgba(255, 107, 157, 0.12);
+  position: absolute;
+  pointer-events: none;
+}
+
+/* Level 2: ？ボタン */
+.hint-btn {
+  width: 56px;
+  height: 56px;
+  font-size: 30px;
+  font-weight: 900;
+  background: #E1BEE7;
+  color: #7B1FA2;
+  border: 3px solid #CE93D8;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.hint-btn:active {
+  transform: scale(0.93);
+}
+
+.hint-peek {
+  font-size: 80px;
+  font-weight: 900;
+  color: #CE93D8;
+  animation: peekIn 1.2s ease-out forwards;
+}
+
+@keyframes peekIn {
+  0% { opacity: 1; transform: scale(1.2); }
+  70% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.8); }
+}
+
+.choices-area {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.choice-btn {
+  width: 120px;
+  height: 120px;
+  font-size: 56px;
+  font-weight: 900;
+  background: #FFF;
+  border: 4px solid #DDD;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: transform 0.12s, border-color 0.12s, background 0.12s;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+}
+
+.choice-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(0,0,0,0.1);
+}
+
+.choice-btn.correct {
+  background: #C8E6C9;
+  border-color: #4CAF50;
+  animation: correctPop 0.4s ease-out;
+}
+
+@keyframes correctPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.choice-btn.wrong {
+  animation: shake 0.4s ease-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+
+.feedback-text {
+  font-size: 32px;
+  font-weight: 900;
+  min-height: 44px;
+  text-align: center;
+}
+
+.feedback-text.correct {
+  color: #FF6B9D;
+  animation: bounceIn 0.4s ease-out;
+}
+
+.feedback-text.wrong {
+  color: #999;
+  font-size: 24px;
+}
+
+@keyframes bounceIn {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.home-btn {
+  padding: 14px 36px;
+  font-size: 20px;
+  font-weight: 700;
+  background: #EEE;
+  color: #777;
+  border: 2px solid #DDD;
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.home-btn:active {
+  transform: translateY(2px);
+}
+
+.progress-bar {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 24px;
+  position: absolute;
+  top: 16px;
+  left: 16px;
+}
+
+.progress-star {
+  font-size: 22px;
+  opacity: 0.25;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.progress-star.filled {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+/* ===================== */
+/* マイルストーン画面     */
+/* ===================== */
+#milestone-screen {
+  gap: 30px;
+  background: linear-gradient(135deg, #FFF8E7 0%, #FFE8F0 50%, #E8F0FF 100%);
+}
+
+.milestone-title {
+  font-size: 64px;
+  font-weight: 900;
+  color: #FF6B9D;
+  text-shadow: 3px 3px 0 #FFB8D0;
+  animation: milestoneBounce 0.6s ease-out;
+}
+
+@keyframes milestoneBounce {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.milestone-sub {
+  font-size: 28px;
+  font-weight: 700;
+  color: #FF8E53;
+}
+
+.milestone-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.milestone-btn {
+  padding: 22px 40px;
+  font-size: 26px;
+  font-weight: 800;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  box-shadow: 0 6px 0 rgba(0,0,0,0.15);
+}
+
+.milestone-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 3px 0 rgba(0,0,0,0.15);
+}
+
+.milestone-btn.continue {
+  background: #6BCB77;
+  color: #FFF;
+}
+
+.milestone-btn.home {
+  background: #FFD93D;
+  color: #8B6914;
+}
+
+/* ===================== */
+/* 紙吹雪アニメーション   */
+/* ===================== */
+.confetti-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.confetti {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  animation: confettiFall linear forwards;
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translateY(-20px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- スタート画面 -->
+<div id="start-screen" class="screen active">
+  <div class="game-title">ひらがな あそび</div>
+  <div class="level-buttons">
+    <button class="level-btn lv1" onclick="startGame(1)">
+      レベル 1
+      <div class="level-desc">もじが おおきく みえるよ</div>
+    </button>
+    <button class="level-btn lv2" onclick="startGame(2)">
+      レベル 2
+      <div class="level-desc">ヒントが あるよ</div>
+    </button>
+    <button class="level-btn lv3" onclick="startGame(3)">
+      レベル 3
+      <div class="level-desc">ヒントなし チャレンジ！</div>
+    </button>
+  </div>
+  <button class="settings-btn" onclick="showScreen('settings-screen')">⚙️</button>
+</div>
+
+<!-- 設定画面 -->
+<div id="settings-screen" class="screen">
+  <div class="settings-title">もじの せってい</div>
+  <div class="settings-actions">
+    <button onclick="toggleAll(true)">ぜんぶ えらぶ</button>
+    <button onclick="toggleAll(false)">ぜんぶ はずす</button>
+  </div>
+  <div class="row-grid" id="row-grid"></div>
+  <button class="back-btn" onclick="saveSettingsAndGoBack()">もどる</button>
+</div>
+
+<!-- ゲーム画面 -->
+<div id="game-screen" class="screen">
+  <div class="progress-bar" id="progress-bar"></div>
+  <div class="question-area">
+    <div class="question-text">
+      <span class="highlight" id="question-char"></span> はどれ？
+    </div>
+    <button class="sound-btn" onclick="playCharAudio(currentAnswer)">🔊</button>
+    <div class="hint-area" id="hint-area"></div>
+  </div>
+  <div class="choices-area" id="choices-area"></div>
+  <div class="feedback-text" id="feedback"></div>
+  <button class="home-btn" onclick="goHome()">🏠 もどる</button>
+</div>
+
+<!-- マイルストーン画面（5問正解） -->
+<div id="milestone-screen" class="screen">
+  <div class="milestone-title">やったね！</div>
+  <div class="milestone-sub">5もん せいかい！</div>
+  <div class="milestone-buttons">
+    <button class="milestone-btn continue" onclick="continuePlaying()">つづける</button>
+    <button class="milestone-btn home" onclick="goHome()">レベルを えらぶ</button>
+  </div>
+</div>
+
+<!-- 紙吹雪コンテナ -->
+<div class="confetti-container" id="confetti-container"></div>
+
+<script>
+// =====================
+// ひらがなデータ
+// =====================
+const HIRAGANA = {
+  'あ行': ['あ','い','う','え','お'],
+  'か行': ['か','き','く','け','こ'],
+  'さ行': ['さ','し','す','せ','そ'],
+  'た行': ['た','ち','つ','て','と'],
+  'な行': ['な','に','ぬ','ね','の'],
+  'は行': ['は','ひ','ふ','へ','ほ'],
+  'ま行': ['ま','み','む','め','も'],
+  'や行': ['や','ゆ','よ'],
+  'ら行': ['ら','り','る','れ','ろ'],
+  'わ行': ['わ','を'],
+  'ん': ['ん']
+};
+
+const ROW_NAMES = Object.keys(HIRAGANA);
+
+const PRAISE_WORDS = ['すごい！','やったね！','てんさい！','かっこいい！','すばらしい！'];
+
+// =====================
+// 音声ファイルマッピング（褒め言葉）
+// =====================
+const PRAISE_AUDIO_MAP = {
+  'すごい！': 'sugoi',
+  'やったね！': 'yattane',
+  'てんさい！': 'tensai',
+  'かっこいい！': 'kakkoii',
+  'すばらしい！': 'subarashii'
+};
+
+const MILESTONE_COUNT = 5;
+
+// =====================
+// 状態管理
+// =====================
+let currentLevel = 1;
+let currentAnswer = '';
+let isAnswered = false;
+let selectedRows = [...ROW_NAMES];
+let correctCount = 0;
+
+// wavファイル存在キャッシュ（404チェック結果を記憶）
+const audioAvailableCache = {};
+
+// =====================
+// 画面切り替え
+// =====================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+
+  if (id === 'settings-screen') {
+    renderSettings();
+  }
+}
+
+function goHome() {
+  showScreen('start-screen');
+}
+
+// =====================
+// 設定画面
+// =====================
+function renderSettings() {
+  const grid = document.getElementById('row-grid');
+  grid.innerHTML = '';
+  ROW_NAMES.forEach(row => {
+    const isChecked = selectedRows.includes(row);
+    const div = document.createElement('div');
+    div.className = 'row-checkbox' + (isChecked ? ' checked' : '');
+    div.innerHTML = '<span class="checkmark">' + (isChecked ? '✓' : '') + '</span>' + row;
+    div.onclick = function() {
+      const idx = selectedRows.indexOf(row);
+      if (idx >= 0) {
+        selectedRows.splice(idx, 1);
+      } else {
+        selectedRows.push(row);
+      }
+      renderSettings();
+    };
+    grid.appendChild(div);
+  });
+}
+
+function toggleAll(on) {
+  selectedRows = on ? [...ROW_NAMES] : [];
+  renderSettings();
+}
+
+function saveSettingsAndGoBack() {
+  if (selectedRows.length === 0) {
+    selectedRows = [...ROW_NAMES];
+  }
+  try {
+    localStorage.setItem('hiragana-rows', JSON.stringify(selectedRows));
+  } catch (e) { /* ignore */ }
+  showScreen('start-screen');
+}
+
+function loadSettings() {
+  try {
+    const saved = localStorage.getItem('hiragana-rows');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        selectedRows = parsed.filter(r => ROW_NAMES.includes(r));
+        if (selectedRows.length === 0) selectedRows = [...ROW_NAMES];
+      }
+    }
+  } catch (e) { /* ignore */ }
+}
+
+// =====================
+// ゲームロジック
+// =====================
+function getAvailableChars() {
+  const chars = [];
+  selectedRows.forEach(row => {
+    if (HIRAGANA[row]) {
+      chars.push(...HIRAGANA[row]);
+    }
+  });
+  return chars.length > 0 ? chars : Object.values(HIRAGANA).flat();
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pickRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function startGame(level) {
+  currentLevel = level;
+  correctCount = 0;
+  showScreen('game-screen');
+  nextQuestion();
+}
+
+function continuePlaying() {
+  correctCount = 0;
+  showScreen('game-screen');
+  nextQuestion();
+}
+
+function renderProgress() {
+  const bar = document.getElementById('progress-bar');
+  bar.innerHTML = '';
+  for (let i = 0; i < MILESTONE_COUNT; i++) {
+    const star = document.createElement('span');
+    star.className = 'progress-star' + (i < correctCount ? ' filled' : '');
+    star.textContent = '⭐';
+    bar.appendChild(star);
+  }
+}
+
+function nextQuestion() {
+  isAnswered = false;
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback-text';
+
+  renderProgress();
+
+  const chars = getAvailableChars();
+  const numChoices = currentLevel === 1 ? 2 : currentLevel === 2 ? 3 : 5;
+
+  // 正解を選ぶ
+  currentAnswer = pickRandom(chars);
+
+  // 選択肢を作成（正解を含む）
+  const otherChars = chars.filter(c => c !== currentAnswer);
+  const shuffledOthers = shuffle(otherChars);
+  const choices = [currentAnswer, ...shuffledOthers.slice(0, numChoices - 1)];
+  const shuffledChoices = shuffle(choices);
+
+  // 問題テキスト
+  document.getElementById('question-char').textContent = currentAnswer;
+
+  // ヒントエリア
+  const hintArea = document.getElementById('hint-area');
+  hintArea.innerHTML = '';
+
+  if (currentLevel === 1) {
+    const hintBg = document.createElement('div');
+    hintBg.className = 'hint-bg';
+    hintBg.textContent = currentAnswer;
+    hintArea.appendChild(hintBg);
+  } else if (currentLevel === 2) {
+    const hintBtn = document.createElement('button');
+    hintBtn.className = 'hint-btn';
+    hintBtn.textContent = '？';
+    hintBtn.onclick = function() {
+      hintArea.innerHTML = '';
+      const peek = document.createElement('div');
+      peek.className = 'hint-peek';
+      peek.textContent = currentAnswer;
+      hintArea.appendChild(peek);
+      setTimeout(function() {
+        hintArea.innerHTML = '';
+        hintArea.appendChild(hintBtn);
+      }, 1200);
+    };
+    hintArea.appendChild(hintBtn);
+  }
+
+  // 選択肢ボタン
+  const choicesArea = document.getElementById('choices-area');
+  choicesArea.innerHTML = '';
+  shuffledChoices.forEach(ch => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = ch;
+    btn.onclick = function() { handleChoice(btn, ch); };
+    choicesArea.appendChild(btn);
+  });
+
+  // 音声再生
+  playCharAudio(currentAnswer);
+}
+
+function handleChoice(btn, chosen) {
+  if (isAnswered) return;
+
+  if (chosen === currentAnswer) {
+    // 正解
+    isAnswered = true;
+    btn.classList.add('correct');
+    correctCount++;
+
+    // バイブレーション（対応端末のみ）
+    if (navigator.vibrate) {
+      navigator.vibrate(100);
+    }
+
+    const praise = pickRandom(PRAISE_WORDS);
+    const feedback = document.getElementById('feedback');
+    feedback.textContent = praise;
+    feedback.className = 'feedback-text correct';
+
+    showConfetti();
+    renderProgress();
+
+    // 褒め言葉の音声（wavファイル or フォールバック）
+    const praiseKey = PRAISE_AUDIO_MAP[praise];
+    if (praiseKey) {
+      playAudio('./audio/' + currentAnswer + '.wav').then(function() {
+        setTimeout(function() {
+          playAudio('./audio/' + praiseKey + '.wav');
+        }, 600);
+      });
+    } else {
+      speakText(currentAnswer + '、' + praise);
+    }
+
+    // マイルストーン or 次の問題
+    if (correctCount >= MILESTONE_COUNT) {
+      setTimeout(showMilestone, 1800);
+    } else {
+      setTimeout(nextQuestion, 1800);
+    }
+  } else {
+    // 不正解（否定しない）
+    btn.classList.add('wrong');
+    const feedback = document.getElementById('feedback');
+    feedback.textContent = 'もういちど やってみよう！';
+    feedback.className = 'feedback-text wrong';
+
+    setTimeout(function() {
+      btn.classList.remove('wrong');
+    }, 400);
+  }
+}
+
+function showMilestone() {
+  showScreen('milestone-screen');
+  showConfetti();
+  playAudio('./audio/yattane_big.wav');
+}
+
+// =====================
+// 音声再生（wavファイル + Web Speech APIフォールバック）
+// =====================
+
+// wavファイルを再生。成功したらresolve、失敗したらフォールバックしてresolve
+function playAudio(path) {
+  return new Promise(function(resolve) {
+    // キャッシュで404と分かっていればスキップ
+    if (audioAvailableCache[path] === false) {
+      resolve(false);
+      return;
+    }
+
+    var audio = new Audio(path);
+    audio.addEventListener('canplaythrough', function() {
+      audioAvailableCache[path] = true;
+      audio.play().then(function() {
+        resolve(true);
+      }).catch(function() {
+        resolve(false);
+      });
+    }, { once: true });
+
+    audio.addEventListener('error', function() {
+      audioAvailableCache[path] = false;
+      resolve(false);
+    }, { once: true });
+
+    // タイムアウト（2秒）
+    setTimeout(function() {
+      if (audioAvailableCache[path] === undefined) {
+        audioAvailableCache[path] = false;
+        resolve(false);
+      }
+    }, 2000);
+  });
+}
+
+// ひらがな1文字の音声再生（🔊ボタン & 出題時）
+function playCharAudio(char) {
+  playAudio('./audio/' + char + '.wav').then(function(played) {
+    if (!played) {
+      speakText(char);
+    }
+  });
+}
+
+// Web Speech APIフォールバック
+function speakText(text) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  var utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'ja-JP';
+  utter.rate = 0.85;
+  utter.pitch = 1.2;
+  window.speechSynthesis.speak(utter);
+}
+
+// =====================
+// 紙吹雪エフェクト
+// =====================
+function showConfetti() {
+  const container = document.getElementById('confetti-container');
+  const colors = ['#FF6B9D','#FFD93D','#6BCB77','#4D96FF','#FF8E53','#CE93D8'];
+  const count = 40;
+
+  for (let i = 0; i < count; i++) {
+    const confetti = document.createElement('div');
+    confetti.className = 'confetti';
+    confetti.style.left = Math.random() * 100 + '%';
+    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+    confetti.style.animationDuration = (1.5 + Math.random() * 1.5) + 's';
+    confetti.style.animationDelay = (Math.random() * 0.5) + 's';
+    confetti.style.width = (8 + Math.random() * 8) + 'px';
+    confetti.style.height = (8 + Math.random() * 8) + 'px';
+    container.appendChild(confetti);
+  }
+
+  setTimeout(function() {
+    container.innerHTML = '';
+  }, 3500);
+}
+
+// =====================
+// 初期化
+// =====================
+loadSettings();
+</script>
+</body>
+</html>
