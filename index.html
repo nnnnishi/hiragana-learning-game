@@ -896,6 +896,53 @@ function getStats() {
   };
 }
 
+// Beta分布からのサンプリング（Jöhnk's algorithm）
+function sampleBeta(alpha, beta) {
+  // ガンマ分布からのサンプリングを利用: Beta(a,b) = Ga(a)/(Ga(a)+Ga(b))
+  function sampleGamma(shape) {
+    if (shape < 1) {
+      return sampleGamma(shape + 1) * Math.pow(Math.random(), 1 / shape);
+    }
+    // Marsaglia and Tsang's method
+    var d = shape - 1 / 3;
+    var c = 1 / Math.sqrt(9 * d);
+    while (true) {
+      var x, v;
+      do {
+        x = normalRandom();
+        v = 1 + c * x;
+      } while (v <= 0);
+      v = v * v * v;
+      var u = Math.random();
+      if (u < 1 - 0.0331 * (x * x) * (x * x)) return d * v;
+      if (Math.log(u) < 0.5 * x * x + d * (1 - v + Math.log(v))) return d * v;
+    }
+  }
+  function normalRandom() {
+    var u = 0, v = 0;
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  }
+  var ga = sampleGamma(alpha);
+  var gb = sampleGamma(beta);
+  return ga / (ga + gb);
+}
+
+// トンプソンサンプリングで苦手な文字を優先的に選択
+function selectByThompson(chars) {
+  var stats = getStats().charStats;
+  var best = null, bestScore = -1;
+  chars.forEach(function(ch) {
+    var s = stats[ch] || { total: 0, correct: 0 };
+    var alpha = (s.total - s.correct) + 1; // 不正解+1
+    var beta  = s.correct + 1;              // 正解+1
+    var score = sampleBeta(alpha, beta);
+    if (score > bestScore) { bestScore = score; best = ch; }
+  });
+  return best;
+}
+
 // =====================
 // 画面切り替え
 // =====================
@@ -1026,7 +1073,7 @@ function nextQuestion() {
   const numChoices = currentLevel === 1 ? 2 : currentLevel === 2 ? 3 : 5;
 
   // 正解を選ぶ
-  currentAnswer = pickRandom(chars);
+  currentAnswer = selectByThompson(chars);
 
   // 選択肢を作成（正解を含む）
   const otherChars = chars.filter(c => c !== currentAnswer);
