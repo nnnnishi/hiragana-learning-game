@@ -47,3 +47,4 @@ bash scripts/generate_audio.sh
 ## クレジット
 
 音声: [VOICEVOX: 四国めたん](https://voicevox.hiroshiba.jp/)
+効果音: [タダノオト](https://tadanote.tokyo/)

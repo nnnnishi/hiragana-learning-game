@@ -811,6 +811,9 @@ function handleChoice(btn, chosen) {
       navigator.vibrate(100);
     }
 
+    // 正解効果音（ランダム）
+    playAudio('./audio/correct' + (Math.floor(Math.random() * 5) + 1) + '.mp3', 0.3);
+
     const praise = pickRandom(PRAISE_WORDS);
     const feedback = document.getElementById('feedback');
     feedback.textContent = praise;
@@ -861,7 +864,7 @@ function showMilestone() {
 // =====================
 
 // wavファイルを再生。成功したらresolve、失敗したらフォールバックしてresolve
-function playAudio(path) {
+function playAudio(path, volume) {
   return new Promise(function(resolve) {
     // キャッシュで404と分かっていればスキップ
     if (audioAvailableCache[path] === false) {
@@ -870,6 +873,7 @@ function playAudio(path) {
     }
 
     var audio = new Audio(path);
+    if (volume !== undefined) audio.volume = volume;
     audio.addEventListener('canplaythrough', function() {
       audioAvailableCache[path] = true;
       audio.play().then(function() {
