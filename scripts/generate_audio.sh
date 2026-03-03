@@ -10,7 +10,7 @@
 set -euo pipefail
 
 VOICEVOX_URL="http://localhost:50021"
-SPEAKER=2  # 四国めたん（ノーマル）
+SPEAKER=20  # もち子さん
 OUTPUT_DIR="./audio"
 
 mkdir -p "$OUTPUT_DIR"
