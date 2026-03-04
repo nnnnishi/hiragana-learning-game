@@ -220,6 +220,8 @@ body {
   padding: 20px 20px 30px;
   gap: 10px;
   position: relative;
+  overflow: hidden;
+  touch-action: none;
 }
 
 .question-area {
@@ -951,9 +953,17 @@ function selectByThompson(chars) {
 // =====================
 // 画面切り替え
 // =====================
+function preventScroll(e) { e.preventDefault(); }
+
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+
+  if (id === 'game-screen') {
+    document.addEventListener('touchmove', preventScroll, { passive: false });
+  } else {
+    document.removeEventListener('touchmove', preventScroll);
+  }
 
   if (id === 'settings-screen') {
     renderSettings();
